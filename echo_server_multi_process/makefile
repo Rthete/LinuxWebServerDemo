@@ -1,0 +1,1 @@
+g++ src/echo.h src/process_pool.h src/main.cpp -o main
