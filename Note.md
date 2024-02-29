@@ -27,3 +27,18 @@ Epoll+Nonblocking，单线程Reactor模式echo server。
 - 使用tmplate的目的：泛化，可以使用不同的user类对client的请求进行处理（实现中的user为Echo），只需要分别定义init()和process()函数。
 
 *不是很懂MAX_USER_PER_PROCESS
+
+## 3 Tiny Muduo
+
+
+EventLoop: 初始化Epoller，循环调用epoll_wait()，将就绪的事件加入channel，并按EPOLLIN/EPOLLOUT分别调用回调函数进行处理。
+
+TCPServer: 一个简单的TCP服务器类，用于监听并处理客户端连接。
+
+Acceptor: 用于接受新的连接，并在有新连接到来时触发回调函数。
+
+Epoller: 提供各种epoll相关方法。进行epoll_wait，管理事件表等。
+
+Channel: 将一个文件描述符和其相关的事件处理逻辑封装在一个对象中，并提供了一些方法来方便地设置事件监听和回调函数。
+
+TCPConnectionptr: 表示一个TCP连接的智能指针，用于管理连接的状态和处理事件。
