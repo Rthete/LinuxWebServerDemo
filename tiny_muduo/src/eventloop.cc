@@ -18,9 +18,9 @@ EventLoop::~EventLoop() {}
 void EventLoop::Loop() {
     while(1) {
         epoller_->Poll(active_channels_);
-        printf("EventLoop Loop:: eventnum %d\n", active_channels_.size());
+        printf("EventLoop::Loop eventnum %d\n", active_channels_.size());
         for(const auto& channel: active_channels_) {
-            printf("EventLoop Loop connfd %d\n", channel->fd());
+            printf("EventLoop::Loop connfd %d\n", channel->fd());
             channel->HandleEvent();
         }
         active_channels_.clear();

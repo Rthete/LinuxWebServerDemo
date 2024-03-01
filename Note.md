@@ -30,15 +30,36 @@ Epoll+Nonblocking，单线程Reactor模式echo server。
 
 ## 3 Tiny Muduo
 
+### 文件说明
 
-EventLoop: 初始化Epoller，循环调用epoll_wait()，将就绪的事件加入channel，并按EPOLLIN/EPOLLOUT分别调用回调函数进行处理。
+epoller.h：定义了Epoller类，基于epoll实现事件轮询。
 
-TCPServer: 一个简单的TCP服务器类，用于监听并处理客户端连接。
+channel.h：定义了Channel类，用于管理I/O事件的通道。
 
-Acceptor: 用于接受新的连接，并在有新连接到来时触发回调函数。
+eventloop.h：定义了EventLoop类，管理事件循环。
 
-Epoller: 提供各种epoll相关方法。进行epoll_wait，管理事件表等。
+acceptor.h：定义了Acceptor类，用于接受新连接。
 
-Channel: 将一个文件描述符和其相关的事件处理逻辑封装在一个对象中，并提供了一些方法来方便地设置事件监听和回调函数。
+tcpserver.h：定义了TCPServer类，封装TCP服务器逻辑。
 
-TCPConnectionptr: 表示一个TCP连接的智能指针，用于管理连接的状态和处理事件。
+tcpconnectionptr.h：定义了TCPConnectionPtr类，表示TCP连接的指针。
+
+echo.h：定义了EchoServer类，实现了一个简单的回显服务器。
+
+callback.h：定义了回调函数类型。
+
+address.h：定义了Address类，表示IP地址和端口号。
+
+### 程序运行逻辑
+
+1. 主程序通过main.cc启动Echo服务器，创建一个EventLoop实例，作为整个事件循环的管理者，并创建一个EchoServer实例，传入EventLoop实例和要监听的地址。
+
+2. EchoServer内部创建了一个TCPServer实例，负责监听连接。并为其绑定连接建立时的回调函数（打印信息）和消息到来时的回调函数（send回消息）。
+
+3. TCPServer内部又创建了一个Acceptor实例，用于接受新的连接。创建Acceptor实例时，会初始化listenfd，并进行bind地址；**且创建一个Channel实例，用于管理listenfd的事件**。
+
+4. 当listenfd上有读事件时，Channel会自动调用注册的读事件回调函数（`Acceptor::NewConnection()`），在该函数中调用accept接受连接请求，并自动调用连接建立回调函数（TCPServer初始化创建Acceptor实例时便绑定好的`TCPServer::NewConnection(int connfd)`），在该函数中，会创建一个TCPConnectionPtr实例表示新连接。
+
+5. TCPConnectionPtr内部**创建了一个Channel实例，用于管理connfd的事件**。当connfd上有读事件时，Channel会自动调用注册的读事件回调函数（`TCPConnectionPtr::HandleMessage()`），在其中调用Recv接收数据，若接收到数据，就调用message_callback_（即一开始从EchoServer中就绑定的消息回调函数），调用send将消息原样发送回客户端。
+
+6. 上述各模块初始化完成、各回调函数绑定完成后，main.cc中调用`loop.Loop()`开始启动epoller轮询。将epoll_wait中获取到的所有就绪事件cast为channel，并置于active_channels_中。接着对每个channel中的事件，调用HandleEvent（即根据是读or写事件分别调用注册好的回调函数）。

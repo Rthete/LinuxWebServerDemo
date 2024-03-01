@@ -13,7 +13,7 @@ class Acceptor {
 public:
     typedef std::function<void(int)> NewConnectionCallback;
 
-    Acceptor(EventLoop* loop, const Address& address) {}
+    Acceptor(EventLoop* loop, const Address& address);
     
     void BindListenFd(const Address& address);
     void Listen();
