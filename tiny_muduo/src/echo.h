@@ -7,6 +7,8 @@
 #include "tcpserver.h"
 #include "tcpconnectionptr.h"
 
+static const int thread_nums = 8;
+
 namespace tiny_muduo
 {
 class Address;
@@ -21,6 +23,7 @@ public:
 
     // 启动回显服务器，实际上是调用了TCPServer的Start方法开始监听连接。
     void Start() {
+        printf("Start in Echo\n");
         server_.Start();
     }
 

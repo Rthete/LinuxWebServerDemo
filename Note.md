@@ -63,3 +63,150 @@ address.h：定义了Address类，表示IP地址和端口号。
 5. TCPConnectionPtr内部**创建了一个Channel实例，用于管理connfd的事件**。当connfd上有读事件时，Channel会自动调用注册的读事件回调函数（`TCPConnectionPtr::HandleMessage()`），在其中调用Recv接收数据，若接收到数据，就调用message_callback_（即一开始从EchoServer中就绑定的消息回调函数），调用send将消息原样发送回客户端。
 
 6. 上述各模块初始化完成、各回调函数绑定完成后，main.cc中调用`loop.Loop()`开始启动epoller轮询。将epoll_wait中获取到的所有就绪事件cast为channel，并置于active_channels_中。接着对每个channel中的事件，调用HandleEvent（即根据是读or写事件分别调用注册好的回调函数）。
+
+
+## Tiny Muduo 多线程
+
+```
+ThreadNums: 8
+Start in Echo
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026722137856 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 26
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026713745152 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 27
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026705352448 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 28
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026696959744 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 29
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026688567040 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 30
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026680174336 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 31
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026335721216 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 32
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026327328512 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 33
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026722137856 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 34
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026713745152 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 35
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026705352448 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 36
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026696959744 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 37
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140026688567040 Manage
+echo_server has a new connection 
+Epoller Poll start
+Epoller Poll end
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 38
+Epoller Poll start
+```

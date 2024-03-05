@@ -8,4 +8,5 @@ EchoServer::EchoServer(tiny_muduo::EventLoop* loop, const tiny_muduo::Address& l
       server_(loop, listen_addr) {
     server_.SetConnectionCallback(std::bind(&EchoServer::ConnectionCallback, this, _1));
     server_.SetMessageCallback(std::bind(&EchoServer::MessageCallback, this, _1));
+    server_.SetThreadNums(thread_nums);
 }

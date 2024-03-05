@@ -4,6 +4,7 @@
 #include "callback.h"
 #include "eventloop.h"
 #include "acceptor.h"
+#include "eventloopthreadpool.h"
 
 namespace tiny_muduo
 {
@@ -18,7 +19,7 @@ public:
     // 启动TCP服务器，这里的实现是调用Acceptor的Listen方法开始监听连接。
     // 在真实的情况下，可能还需要启动工作线程池等。
     void Start() {
-        // threads.Start();
+        threads_->StartLoop();
         loop_->RunOneFunc(std::bind(&Acceptor::Listen, acceptor_));
     }
     // 设置连接建立时的回调函数
@@ -29,12 +30,17 @@ public:
     void SetMessageCallback(const MessageCallback& callback) {
         message_callback_ = callback;
     }
+
+    void SetThreadNums(int thread_nums) {
+        printf("ThreadNums: %d\n", thread_nums);
+        threads_->SetThreadNums(thread_nums);
+    }
     
     void NewConnection(int connfd);
 
 private:
     EventLoop* loop_;
-    // EventLoopThreadPool* threads_;
+    EventLoopThreadPool* threads_;
     Acceptor* acceptor_;
 
     ConnectionCallback connection_callback_;

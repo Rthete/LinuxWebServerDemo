@@ -5,9 +5,12 @@ BUILDDIR = build
 
 OBJS = $(BUILDDIR)/main.o $(BUILDDIR)/echo.o $(BUILDDIR)/tcpserver.o \
        $(BUILDDIR)/acceptor.o $(BUILDDIR)/channel.o $(BUILDDIR)/eventloop.o \
-       $(BUILDDIR)/epoller.o $(BUILDDIR)/tcpconnectionptr.o
+       $(BUILDDIR)/epoller.o $(BUILDDIR)/tcpconnectionptr.o $(BUILDDIR)/thread.o \
+	   $(BUILDDIR)/eventloopthreadpool.o $(BUILDDIR)/eventloopthread.o $(TFLAG)
 
-web_server: $(OBJS)
+TFLAG = -lpthread
+
+$(BUILDDIR)/web_server: $(OBJS)
 	$(CC) $^ -o $@
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cc $(SRCDIR)/eventloop.h $(SRCDIR)/address.h $(SRCDIR)/echo.h
@@ -32,6 +35,16 @@ $(BUILDDIR)/epoller.o: $(SRCDIR)/epoller.cc $(SRCDIR)/epoller.h $(SRCDIR)/channe
 	$(CC) $(CFLAG) $< -o $@
 
 $(BUILDDIR)/tcpconnectionptr.o: $(SRCDIR)/tcpconnectionptr.cc $(SRCDIR)/tcpconnectionptr.h $(SRCDIR)/channel.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/eventloopthreadpool.o: $(SRCDIR)/eventloopthreadpool.cc $(SRCDIR)/eventloopthreadpool.h $(SRCDIR)/eventloopthread.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/eventloopthread.o: $(SRCDIR)/eventloopthread.cc $(SRCDIR)/eventloopthread.h $(SRCDIR)/mutex.h \
+							   $(SRCDIR)/condition.h  $(SRCDIR)/eventloop.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/thread.o: $(SRCDIR)/thread.cc $(SRCDIR)/thread.h $(SRCDIR)/latch.h
 	$(CC) $(CFLAG) $< -o $@
 
 .PHONY: clean
