@@ -20,6 +20,7 @@ Acceptor::Acceptor(EventLoop* loop, const Address& address)
         : loop_(loop),
         listenfd_(socket(PF_INET, SOCK_STREAM, 0)),
         channel_(new Channel(loop, listenfd_)) {
+    printf("[Cstr]: Acceptor\n");
     BindListenFd(address);
     channel_->SetReadCallback(std::bind(&Acceptor::NewConnection, this));      
 }

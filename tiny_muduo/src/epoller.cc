@@ -12,6 +12,7 @@ using namespace tiny_muduo;
 Epoller::Epoller()
     : epollfd_(epoll_create(kMaxEvents)),
       events_(kMaxEvents) {
+    printf("[Cstr]: Epoller\n");
 }
 
 // 用于epoll_wait，等待事件

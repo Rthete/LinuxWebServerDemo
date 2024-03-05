@@ -12,6 +12,7 @@ TCPConnectionPtr::TCPConnectionPtr(EventLoop* loop, int connfd)
     : loop_(loop),
       connfd_(connfd),
       channel_(new Channel(loop_, connfd_)) {
+    printf("[Cstr]: TCPConnectionPtr\n");
     channel_->SetReadCallback(std::bind(&TCPConnectionPtr::HandleMessage, this));
 }
 

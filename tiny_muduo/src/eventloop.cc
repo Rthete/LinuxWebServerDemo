@@ -12,6 +12,7 @@ EventLoop::EventLoop()
       epoller_(new Epoller()),
       wakeup_fd_(::eventfd(0, EFD_NONBLOCK)),
       wakeup_channel_(new Channel(this, wakeup_fd_)) {
+    printf("[Cstr]: EventLoop\n");
     wakeup_channel_->SetReadCallback(std::bind(&EventLoop::HandleRead, this));
     wakeup_channel_->EnableReading();
 }

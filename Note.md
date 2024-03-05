@@ -67,6 +67,20 @@ address.h：定义了Address类，表示IP地址和端口号。
 
 ## Tiny Muduo 多线程
 
+thread pool + One loop per thread实现方式。
+
+### 多线程实现逻辑
+
+EventLoopThreadPool: 线程池，为TCPServer提供空闲的线程，处理新连接。
+
+EventLoopThread: 封装线程类，做Pool和Thread之间的信息传递。
+
+Thread: 最基本的线程类。
+
+Mutex/Condition/Latch: 互斥锁、条件变量、屏障。
+
+### 八线程循环使用
+
 ```
 ThreadNums: 8
 Start in Echo
@@ -208,5 +222,83 @@ Epoller Poll start
 Epoller Poll end
 EventLoop::Loop eventnum 1
 EventLoop::Loop connfd 38
+Epoller Poll start
+```
+
+### 构造函数调用顺序
+
+```
+// 最开始构造EchoServer时，就把线程池初始化
+[Cstr]: Epoller
+[Cstr]: EventLoop
+[Cstr]: EventLoopThreadPool
+[Cstr]: Acceptor
+[Cstr]: TCPServer
+[Cstr]: EchoServer
+// 初始化八个线程，进行epoll_wait
+ThreadNums: 8
+Start in Echo
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+[Cstr]: Thread
+[Cstr]: EventLoopThread
+[Cstr]: Epoller
+[Cstr]: EventLoop
+Epoller Poll start
+Epoller Poll start
+// 初始化完成，等待连接到来
+Epoller Poll end
+// listenfd收到连接请求，accept
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 5
+TCPServer NewConnection Arrive Tid:140436439467776 Manage
+[Cstr]: TCPConnectionPtr
+echo_server has a new connection 
+Epoller Poll start
+// 等待client发送数据
+Epoller Poll end
+// connfd收到数据，进行recv
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 26
+echo_server get message 
+Epoller Poll start
+// 继续等待
+Epoller Poll end
+// client断开连接
+EventLoop::Loop eventnum 1
+EventLoop::Loop connfd 26
 Epoller Poll start
 ```
