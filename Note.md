@@ -1,6 +1,15 @@
+[toc]
+
 # Note
 
-## 1 Echo Server
+## ToDoList
+
+- [ ] buffer类
+- [ ] http状态机
+- [ ] 同步/异步日志
+- [ ] 定时器
+
+## 1 Simple Echo Server
 
 Epoll+Nonblocking，单线程Reactor模式echo server。
 
@@ -16,7 +25,7 @@ Epoll+Nonblocking，单线程Reactor模式echo server。
 
 ## 2 Echo Server + multiprocess
 
-使用Process Pool + One loop per thread方式。
+使用Process Pool + One loop per process方式。
 
 - 主进程监听listenfd的事件，若检测到连接请求，则使用round robin算法选择一个子进程，使用pipe通知子进程处理新的client连接请求。
 
@@ -65,7 +74,7 @@ address.h：定义了Address类，表示IP地址和端口号。
 6. 上述各模块初始化完成、各回调函数绑定完成后，main.cc中调用`loop.Loop()`开始启动epoller轮询。将epoll_wait中获取到的所有就绪事件cast为channel，并置于active_channels_中。接着对每个channel中的事件，调用HandleEvent（即根据是读or写事件分别调用注册好的回调函数）。
 
 
-## Tiny Muduo 多线程
+## 4 Tiny Muduo: 线程池
 
 thread pool + One loop per thread实现方式。
 
@@ -302,3 +311,7 @@ EventLoop::Loop eventnum 1
 EventLoop::Loop connfd 26
 Epoller Poll start
 ```
+
+## Tiny Muduo: Buffer类
+
+non-blocking IO 的核心思想是避免阻塞在read()或write()或其他IO系统调用上，这样可以最大限度地复用thread-of-control，让一个线程能服务于多个socket连接。IO线程只能阻塞在IO multiplexing函数上，如select/poll/epoll_wait。这样一来，应用层的缓冲是必需的，每个TCP socket都要有stateful的input buffer和output buffer。
