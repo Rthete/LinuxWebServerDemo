@@ -314,4 +314,26 @@ Epoller Poll start
 
 ## Tiny Muduo: Buffer类
 
+### Buffer的目的
+
 non-blocking IO 的核心思想是避免阻塞在read()或write()或其他IO系统调用上，这样可以最大限度地复用thread-of-control，让一个线程能服务于多个socket连接。IO线程只能阻塞在IO multiplexing函数上，如select/poll/epoll_wait。这样一来，应用层的缓冲是必需的，每个TCP socket都要有stateful的input buffer和output buffer。
+
+### muduo中的几个重要方法
+
+https://blog.csdn.net/qq_42500831/article/details/124490830
+
+**Buffer::Retrieve**
+
+retrieve就是从Buffer读取数据。
+
+**Buffer::makeSpace**
+
+如果需要写入缓冲区数据的长度大于Buffer对象底层vector空闲的长度，进行扩容。(vector自动增长)
+
+**Buffer::Append**
+
+不管是从fd上读数据写到缓冲区inputBuffer_，还是发数据要写入outputBuffer_，我们都要往writeable区间内添加数据。
+
+**Buffer::ReadFd**
+
+给readv两个缓冲区，第一个就是Buffer对象的空间（一般是堆空间），第二个是65536字节的栈空间。readv会先写入第一个缓冲区，没写完再写入第二个缓冲区。如果读取了65536字节数据，fd上的数据还是没有读完，那就等Poller下一次上报（工作在LT模式），继续读取，数据不会丢失。
