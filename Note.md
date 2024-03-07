@@ -23,6 +23,12 @@ Epoll+Nonblocking，单线程Reactor模式echo server。
 
 <img src="assets\一般reactor.drawio.png" alt="一般reactor.drawio" style="zoom:50%;" />
 
+> socket编程和建立TCP连接的过程
+>
+> **客户端 connect 成功返回是在第二次握手，服务端 accept 成功返回是在三次握手成功之后。**
+
+![半连接队列与全连接队列](assets\3.jpg)
+
 ## 2 Echo Server + multiprocess
 
 使用Process Pool + One loop per process方式。
@@ -337,3 +343,27 @@ retrieve就是从Buffer读取数据。
 **Buffer::ReadFd**
 
 给readv两个缓冲区，第一个就是Buffer对象的空间（一般是堆空间），第二个是65536字节的栈空间。readv会先写入第一个缓冲区，没写完再写入第二个缓冲区。如果读取了65536字节数据，fd上的数据还是没有读完，那就等Poller下一次上报（工作在LT模式），继续读取，数据不会丢失。
+
+## Tiny Muduo: Http类
+
+Request Headers的一个示例：
+
+```
+GET / HTTP/1.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: zh-CN,zh;q=0.9
+Connection: keep-alive
+Cookie: PSTM=1701226519; BIDUPSID=3F1D58F5B1AA8730667F78787E9423E2; BAIDUID=A7CBA5324C03CE0F889BAB2862377A1E:FG=1; BDUSS=jV3SzRYTDlpazdZTHpwNWVUazMxbGljY2dEdVFEMnhWYURXSnR6VEoydG1rLUZsRVFBQUFBJCQAAAAAAAAAAAEAAACEvG4i1cW37tHUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGYGumVmBrpla; BDUSS_BFESS=jV3SzRYTDlpazdZTHpwNWVUazMxbGljY2dEdVFEMnhWYURXSnR6VEoydG1rLUZsRVFBQUFBJCQAAAAAAAAAAAEAAACEvG4i1cW37tHUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGYGumVmBrpla; H_WISE_SIDS=40123_40155_40162_40201_39661_40207_40215_40223; BD_UPN=12314753; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; H_WISE_SIDS_BFESS=40123_40155_40162_40201_39661_40207_40215_40223; H_PS_PSSID=39661_40207_40215_40223_40294_40291_40288_40285_40317_40079_40364_40352_40366_40378; BAIDUID_BFESS=A7CBA5324C03CE0F889BAB2862377A1E:FG=1; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; BD_CK_SAM=1; PSINO=7; H_PS_645EC=d883dSdYnucUyC1laJn%2FZykaqzLzYrT9UX7O5KzzLX%2BX4dYM%2BbEH5TvpL3HuiOYnfl75; delPer=0; BDSVRTM=203; BA_HECTOR=058l8ka4ah0g0g8h0g8hag2gqg4s721iuifg91s; ZFY=7TnlXIu3rBzbMNyQWUWeE366bLHfJjDoTf1a2ce6X6E:C
+Host: www.baidu.com
+Referer: https://www.baidu.com/s?wd=http%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F&rsv_spt=1&rsv_iqid=0xf9e6b2560002d51c&issp=1&f=8&rsv_bp=1&rsv_idx=2&ie=utf-8&tn=baiduhome_pg&rsv_dl=tb&rsv_enter=1&rsv_sug3=18&rsv_sug2=0&rsv_btype=i&inputT=7409&rsv_sug4=7410
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+sec-ch-ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+```
