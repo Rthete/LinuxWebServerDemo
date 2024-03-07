@@ -4,34 +4,60 @@
 #include <sys/socket.h>
 
 #include "channel.h"
+#include "buffer.h"
 
 using namespace tiny_muduo;
 
 // 创建了一个Channel实例，用于管理连接的事件，并设置了读事件的回调函数为TCPConnectionPtr::HandleMessage。
 TCPConnectionPtr::TCPConnectionPtr(EventLoop* loop, int connfd)
     : loop_(loop),
-      connfd_(connfd),
-      channel_(new Channel(loop_, connfd_)) {
+      fd_(connfd),
+      channel_(new Channel(loop_, fd_)) {
     printf("[Cstr]: TCPConnectionPtr\n");
     channel_->SetReadCallback(std::bind(&TCPConnectionPtr::HandleMessage, this));
+    channel_->SetWriteCallback(std::bind(&TCPConnectionPtr::HandleWrite, this));
 }
 
-// 处理消息到来事件。当有数据到达时，调用Recv方法接收数据，并调用注册的消息到来回调函数处理消息。
 void TCPConnectionPtr::HandleMessage() {
-    if(Recv() > 0) {
-        message_callback_(this);
+    int read_size = input_buffer_.ReadFd(fd_);
+    if(read_size > 0) {
+        message_callback_(this, &input_buffer_);
     }
 }
 
-// 发送消息。将消息拷贝到缓冲区中，然后调用send函数发送消息。
-void TCPConnectionPtr::Send(const string& message) {
-    strcpy(buff_, message.c_str());
-    send(connfd_, (const void*)buff_, sizeof(buff_), 0);
+void TCPConnectionPtr::HandleWrite() {
+    int len = output_buffer_.readablebytes();
+    int remaining = len;
+    int send_size = send(fd_, output_buffer_.Peek(), remaining, 0);
+    remaining -= send_size;
+
+    assert(remaining <= len);
+    if(!remaining) {
+        channel_->DisableWriting();
+    }
 }
 
-// 获取接收到的消息。将缓冲区中的数据拷贝到字符串中，并清空缓冲区。
-std::string TCPConnectionPtr::Get() {
-    string message(buff_);
-    memset(buff_, '\0', sizeof(buff_));
-    return message;
+void TCPConnectionPtr::Send(const char* message, int len) {
+    int remaining = len;
+    int send_size = 0;
+    if(!channel_->IsWriting() && output_buffer_.readablebytes() == 0) {
+        send_size = send(fd_, message, len, 0);
+        remaining -= send_size;
+    }
+
+    assert(remaining <= len);
+    if(remaining > 0) {
+        output_buffer_.Append(message + send_size, remaining);
+        if(!channel_->IsWriting()) {
+            channel_->EnableWriting();
+        }
+    }
+}
+
+void TCPConnectionPtr::Send(Buffer* buffer) {
+    Send(buffer->Peek(), buffer->readablebytes());
+}
+
+void TCPConnectionPtr::Send(const string& message) {
+    Send(message.data(), sizeof(message.size()));
 }

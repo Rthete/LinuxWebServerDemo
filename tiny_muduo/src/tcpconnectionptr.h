@@ -8,6 +8,8 @@
 
 #include "callback.h"
 #include "channel.h"
+#include "buffer.h"
+#include "httpcontent.h"
 
 using std::string;
 
@@ -34,21 +36,33 @@ public:
         connection_callback_(this);
     }
 
+    HttpContent* GetHttpContent() {
+        return &content_;
+    }
+
+    void Shutdown() {
+        if(!channel_->IsWriting()) {
+            shutdown_ = true;
+            ::shutdown(fd_, SHUT_WR);
+        }
+    }
+
+    bool IsShutdown() const { return shutdown_; }
     void HandleMessage();
+    void HandleWrite();
+    void Send(Buffer* buffer);
     void Send(const string& str);
-    string Get();
+    void Send(const char* message, int len);
+    void Send(const char* message) { Send(message, strlen(message)); }
 
 private:
-    int Recv() {
-        memset(buff_, '\0', sizeof(buff_));
-        int ret = recv(connfd_, buff_, 100, 0);
-        return ret;
-    }
-    
     EventLoop* loop_;
-    int connfd_;
+    int fd_;
+    bool shutdown_;
     Channel* channel_;
-    char buff_[100] = {0};
+    Buffer input_buffer_;
+    Buffer output_buffer_;
+    HttpContent content_;
 
     ConnectionCallback connection_callback_;
     MessageCallback message_callback_;

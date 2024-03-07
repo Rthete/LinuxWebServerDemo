@@ -3,20 +3,37 @@ CFLAG = -Wall -c
 SRCDIR = src
 BUILDDIR = build
 
-OBJS = $(BUILDDIR)/main.o $(BUILDDIR)/echo.o $(BUILDDIR)/tcpserver.o \
+OBJS = $(BUILDDIR)/main.o \
+	   $(BUILDDIR)/httpserver.o $(BUILDDIR)/httpresponse.o \
+	   $(BUILDDIR)/httpcontent.o $(BUILDDIR)/httprequest.o \
+	   $(BUILDDIR)/tcpserver.o \
        $(BUILDDIR)/acceptor.o $(BUILDDIR)/channel.o $(BUILDDIR)/eventloop.o \
        $(BUILDDIR)/epoller.o $(BUILDDIR)/tcpconnectionptr.o $(BUILDDIR)/thread.o \
-	   $(BUILDDIR)/eventloopthreadpool.o $(BUILDDIR)/eventloopthread.o $(TFLAG)
+	   $(BUILDDIR)/eventloopthreadpool.o $(BUILDDIR)/eventloopthread.o \
+	   $(BUILDDIR)/buffer.o \
+	   $(TFLAG)
 
 TFLAG = -lpthread
 
 $(BUILDDIR)/web_server: $(OBJS)
 	$(CC) $^ -o $@
 
-$(BUILDDIR)/main.o: $(SRCDIR)/main.cc $(SRCDIR)/eventloop.h $(SRCDIR)/address.h $(SRCDIR)/echo.h
+$(BUILDDIR)/main.o: $(SRCDIR)/main.cc $(SRCDIR)/eventloop.h $(SRCDIR)/address.h \
+					$(SRCDIR)/httpserver.h $(SRCDIR)/httprequest.h $(SRCDIR)/httpresponse.h \
+					$(SRCDIR)/httpresponsefile.h
 	$(CC) $(CFLAG) $< -o $@
 
-$(BUILDDIR)/echo.o: $(SRCDIR)/echo.cc $(SRCDIR)/echo.h $(SRCDIR)/tcpserver.h
+$(BUILDDIR)/httpserver.o: $(SRCDIR)/httpserver.cc $(SRCDIR)/httpserver.h $(SRCDIR)/buffer.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/httpresponse.o: $(SRCDIR)/httpresponse.cc $(SRCDIR)/httpresponse.h $(SRCDIR)/buffer.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/httpcontent.o: $(SRCDIR)/httpcontent.cc $(SRCDIR)/httpcontent.h $(SRCDIR)/httprequest.h \
+						   $(SRCDIR)/httpstate.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/httprequest.o: $(SRCDIR)/httprequest.cc $(SRCDIR)/httprequest.h $(SRCDIR)/httpstate.h
 	$(CC) $(CFLAG) $< -o $@
 
 $(BUILDDIR)/tcpserver.o: $(SRCDIR)/tcpserver.cc $(SRCDIR)/tcpserver.h $(SRCDIR)/acceptor.h $(SRCDIR)/tcpconnectionptr.h
@@ -34,7 +51,8 @@ $(BUILDDIR)/eventloop.o: $(SRCDIR)/eventloop.cc $(SRCDIR)/eventloop.h $(SRCDIR)/
 $(BUILDDIR)/epoller.o: $(SRCDIR)/epoller.cc $(SRCDIR)/epoller.h $(SRCDIR)/channel.h
 	$(CC) $(CFLAG) $< -o $@
 
-$(BUILDDIR)/tcpconnectionptr.o: $(SRCDIR)/tcpconnectionptr.cc $(SRCDIR)/tcpconnectionptr.h $(SRCDIR)/channel.h
+$(BUILDDIR)/tcpconnectionptr.o: $(SRCDIR)/tcpconnectionptr.cc $(SRCDIR)/tcpconnectionptr.h $(SRCDIR)/channel.h \
+								$(SRCDIR)/buffer.h $(SRCDIR)/httpcontent.h
 	$(CC) $(CFLAG) $< -o $@
 
 $(BUILDDIR)/eventloopthreadpool.o: $(SRCDIR)/eventloopthreadpool.cc $(SRCDIR)/eventloopthreadpool.h $(SRCDIR)/eventloopthread.h
@@ -45,6 +63,9 @@ $(BUILDDIR)/eventloopthread.o: $(SRCDIR)/eventloopthread.cc $(SRCDIR)/eventloopt
 	$(CC) $(CFLAG) $< -o $@
 
 $(BUILDDIR)/thread.o: $(SRCDIR)/thread.cc $(SRCDIR)/thread.h $(SRCDIR)/latch.h
+	$(CC) $(CFLAG) $< -o $@
+
+$(BUILDDIR)/buffer.o: $(SRCDIR)/buffer.cc $(SRCDIR)/buffer.h
 	$(CC) $(CFLAG) $< -o $@
 
 .PHONY: clean

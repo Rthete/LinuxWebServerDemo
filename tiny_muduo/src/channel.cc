@@ -17,5 +17,7 @@ void Channel::HandleEvent() {
         read_callback_();
     } else if (recv_events_ & EPOLLOUT) {
         write_callback_();
+    } else {
+        
     }
 }

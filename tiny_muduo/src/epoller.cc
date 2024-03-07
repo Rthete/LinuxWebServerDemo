@@ -43,13 +43,21 @@ int Epoller::SetNonBlocking(int fd) {
 // 更新特定通道的事件监听状态
 void Epoller::Update(Channel* channel) {
     int op = 0, events = channel->events();
-    if(events & EPOLLIN) {
-        op = EPOLL_CTL_ADD;
-        SetNonBlocking(channel->fd());
-    } else if (events & EPOLLRDHUP) {
-        op = EPOLL_CTL_DEL;
+    ChannelState state = channel->state();
+    if(state == kNew || state == kDeleted) {
+        channel->SetChannelState(kAdded);
+        if(events & EPOLLIN) {
+            op = EPOLL_CTL_ADD;
+            SetNonBlocking(channel->fd());
+        } else if (events & EPOLLRDHUP) {
+            op = EPOLL_CTL_DEL;
+        } else {
+            
+        }
+    } else {
+        op = EPOLL_CTL_MOD;
     }
-
+    
     UpdateChannel(op, channel);
 }
 

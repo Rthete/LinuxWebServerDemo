@@ -346,7 +346,7 @@ retrieve就是从Buffer读取数据。
 
 ## Tiny Muduo: Http类
 
-Request Headers的一个示例：
+### Request Headers的一个示例
 
 ```
 GET / HTTP/1.1
@@ -367,3 +367,21 @@ sec-ch-ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"
 sec-ch-ua-mobile: ?0
 sec-ch-ua-platform: "Windows"
 ```
+
+### 模块说明
+
+**httpserver**
+
+与echoserver类似，设置了连接、消息回调函数，以及对请求进行处理，发送response给客户。
+
+**httpcontent**
+
+每个TCPConnectionPtr内置一个content_，对每个连接逐行分析请求行、请求头、请求体。
+
+**httprequest**
+
+解析http请求的内容，获取method、http version等信息，更新状态机。
+
+**httpresponse**
+
+设置response的状态码、message、body等信息，并组成一整条栈上的字符串，append到buffer中，用于发送。

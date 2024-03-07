@@ -19,12 +19,15 @@ public:
 
     int ReadFd(int fd);
 
+    // 指向buffer头部
     char* begin() { return &*buffer_.begin(); };
     const char* begin() const { return &*buffer_.begin(); };
 
+    // 指向待读取区域头部
     char* beginread() { return begin() + read_index_; }
     const char* beginread() const { return begin() + read_index_; }
 
+    // 指向待写区域头部
     char* beginwrite() { return begin() + write_index_; }
     const char* beginwrite() const { return begin() + write_index_; }
 
@@ -105,7 +108,9 @@ public:
 
 private:
     std::vector<char> buffer_;
+    // 应用程序从readerIndex指向的位置开始读缓冲区, 读完后向后移动len（retrieve方法）
     int read_index_;
+    // 应用程序从writerIndex指向的位置开始写缓冲区，写完后writerIndex向后移动len（append方法）
     int write_index_;
 };
 
