@@ -1,11 +1,12 @@
 #include "eventloopthread.h"
 
 #include <pthread.h>
+
 #include <functional>
 
-#include "mutex.h"
 #include "condition.h"
 #include "eventloop.h"
+#include "mutex.h"
 
 using namespace tiny_muduo;
 
@@ -14,37 +15,37 @@ EventLoopThread::EventLoopThread()
       thread_(std::bind(&EventLoopThread::StartFunc, this)),
       mutex_(),
       cond_(mutex_) {
-    printf("[Cstr]: EventLoopThread\n");
+  printf("[Cstr]: EventLoopThread\n");
 }
 
 EventLoopThread::~EventLoopThread() {}
 
 EventLoop* EventLoopThread::StartLoop() {
-    thread_.StartThread();
-    EventLoop* loop = nullptr;
-    {
-        MutexLockGuard lock(mutex_);
-        while(loop_ == nullptr) {
-            cond_.Wait();
-        }
-        loop = loop_;
+  thread_.StartThread();
+  EventLoop* loop = nullptr;
+  {
+    MutexLockGuard lock(mutex_);
+    while (loop_ == nullptr) {
+      cond_.Wait();
     }
-    return loop;
+    loop = loop_;
+  }
+  return loop;
 }
 
 void EventLoopThread::StartFunc() {
-    EventLoop loop;
+  EventLoop loop;
 
-    {
-        MutexLockGuard lock(mutex_);
-        loop_ = &loop;
-        cond_.Signal();
-    }
+  {
+    MutexLockGuard lock(mutex_);
+    loop_ = &loop;
+    cond_.Signal();
+  }
 
-    loop_->Loop();
+  loop_->Loop();
 
-    {
-        MutexLockGuard lock(mutex_);
-        loop_ = nullptr;
-    }
+  {
+    MutexLockGuard lock(mutex_);
+    loop_ = nullptr;
+  }
 }

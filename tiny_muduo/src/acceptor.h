@@ -10,24 +10,25 @@ class Address;
 class Channel;
 
 class Acceptor {
-public:
-    typedef std::function<void(int)> NewConnectionCallback;
+ public:
+  typedef std::function<void(int)> NewConnectionCallback;
 
-    Acceptor(EventLoop* loop, const Address& address);
-    
-    void BindListenFd(const Address& address);
-    void Listen();
-    void NewConnection();
-    void SetNewConnectionCallBack(const NewConnectionCallback& callback) {
-        new_connection_callback_ = callback;
-    }
-private:
-    EventLoop* loop_;
-    int listenfd_;
-    Channel* channel_;
+  Acceptor(EventLoop *loop, const Address &address);
 
-    NewConnectionCallback new_connection_callback_;
+  void BindListenFd(const Address &address);
+  void Listen();
+  void NewConnection();
+  void SetNewConnectionCallBack(const NewConnectionCallback &callback) {
+    new_connection_callback_ = callback;
+  }
+
+ private:
+  EventLoop *loop_;
+  int listenfd_;
+  Channel *channel_;
+
+  NewConnectionCallback new_connection_callback_;
 };
-}
+}  // namespace tiny_muduo
 
 #endif
