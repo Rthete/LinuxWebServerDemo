@@ -2,7 +2,7 @@
 
 #include "acceptor.h"
 #include "eventloopthreadpool.h"
-#include "tcpconnectionptr.h"
+#include "tcpconnection.h"
 
 using namespace tiny_muduo;
 
@@ -13,24 +13,38 @@ TCPServer::TCPServer(EventLoop* loop, const Address& address)
       acceptor_(new Acceptor(loop, address)) {
   printf("[Cstr]: TCPServer\n");
   acceptor_->SetNewConnectionCallBack(
-      std::bind(&TCPServer::NewConnection, this, _1));
+      std::bind(&TCPServer::HandleNewConnection, this, _1));
 }
 
 TCPServer::~TCPServer() {
-  delete threads_;
-  delete acceptor_;
+  for (auto& pair : connections_) {
+    TcpconnectionPtr ptr(pair.second);
+    pair.second.reset();
+    ptr->loop()->RunOneFunc(
+        std::bind(&TcpConnection::ConnectionDestructor, ptr));
+  }
+}
+
+void TCPServer::HandleClose(const TcpconnectionPtr& ptr) {
+  loop_->QueueOneFunc(std::bind(&TCPServer::HandleCloseInLoop, this, ptr));
+}
+
+void TCPServer::HandleCloseInLoop(const TcpconnectionPtr& ptr) {
+  assert(connections_.find(ptr->fd()) != connections_.end());
+  connections_.erase(connections_.find(ptr->fd()));
+  EventLoop* loop = ptr->loop();
+  loop->QueueOneFunc(std::bind(&TcpConnection::ConnectionDestructor, ptr));
 }
 
 // 当有新的连接到来时调用的方法。
 // 从线程池中获取一个loop，来处理连接
-// 在这里，它创建一个TCPConnectionPtr对象表示新连接，并设置连接建立、消息到来时的回调函数，然后将其加入事件循环。
-void TCPServer::NewConnection(int connfd) {
+// 在这里，它创建一个TcpConnection对象表示新连接，并设置连接建立、消息到来时的回调函数，然后将其加入事件循环。
+void TCPServer::HandleNewConnection(int connfd) {
   EventLoop* loop = threads_->NextLoop();
-  printf("TCPServer NewConnection Arrive Tid:%ld Manage\n",
-         loop->DebugShowTid());
-
-  TCPConnectionPtr* ptr = new TCPConnectionPtr(loop_, connfd);
+  TcpconnectionPtr ptr(new TcpConnection(loop_, connfd));
+  connections_[connfd] = ptr;
   ptr->SetConnectionCallback(connection_callback_);
   ptr->SetMessageCallback(message_callback_);
-  loop_->RunOneFunc(std::bind(&TCPConnectionPtr::ConnectionEstablished, ptr));
+  ptr->SetCloseCallback(std::bind(&TCPServer::HandleClose, this, _1));
+  loop_->RunOneFunc(std::bind(&TcpConnection::ConnectionEstablished, ptr));
 }

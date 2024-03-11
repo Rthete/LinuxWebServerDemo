@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <algorithm>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,8 @@ class Buffer {
   char *beginwrite() { return begin() + write_index_; }
   const char *beginwrite() const { return begin() + write_index_; }
 
+  void Append(const char *message) { Append(message, strlen(message)); }
+
   void Append(const char *message, int len) {
     MakeSureEnoughStorage(len);
     std::copy(message, message + len, beginwrite());
@@ -42,13 +45,15 @@ class Buffer {
   void Append(const string &message) { Append(message.data(), message.size()); }
 
   void Retrieve(int len) {
+    assert(readablebytes() >= len);
     // len就是应用程序从Buffer缓冲区读取的数据长度
-    if (len < readablebytes()) {
+    if (len + read_index_ < write_index_) {
       // 可读数据没有读完
       read_index_ = read_index_ + len;
     } else {
       // 可读数据读完了，readerIndex_和writerIndex_都要复位
-      RetrieveAll();
+      write_index_ = kPrePendIndex;
+      read_index_ = write_index_;
     }
   }
 
@@ -69,6 +74,12 @@ class Buffer {
     return ret;
   }
 
+  string RetrieveAllAsString() {
+    string ret = std::move(PeekAllAsString());
+    RetrieveAll();
+    return ret;
+  }
+
   // 返回缓冲区中可读数据的起始地址
   const char *Peek() const { return beginread(); }
 
@@ -77,6 +88,8 @@ class Buffer {
   string PeekAsString(int len) {
     return string(beginread(), beginread() + len);
   }
+
+  string PeekAllAsString() { return string(beginread(), beginwrite()); }
 
   string PeekAsString() { return string(beginread(), beginwrite()); }
 

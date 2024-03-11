@@ -1,10 +1,11 @@
-#ifndef TINY_MODUO_LATCH_H_
-#define TINY_MODUO_LATCH_H_
+#ifndef TINY_MUDUO_LATCH_H_
+#define TINY_MUDUO_LATCH_H_
 
 #include "condition.h"
 #include "mutex.h"
 
 namespace tiny_muduo {
+
 class Latch {
  public:
   Latch(int count) : count_(count), mutex_(), cond_(mutex_) {}
@@ -29,6 +30,6 @@ class Latch {
   MutexLock mutex_;
   Condition cond_;
 };
-}  // namespace tiny_muduo
 
+}  // namespace tiny_muduo
 #endif

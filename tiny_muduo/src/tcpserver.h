@@ -19,7 +19,7 @@ class TCPServer {
   // 在真实的情况下，可能还需要启动工作线程池等。
   void Start() {
     threads_->StartLoop();
-    loop_->RunOneFunc(std::bind(&Acceptor::Listen, acceptor_));
+    loop_->RunOneFunc(std::bind(&Acceptor::Listen, acceptor_.get()));
   }
   // 设置连接建立时的回调函数
   void SetConnectionCallback(const ConnectionCallback& callback) {
@@ -35,15 +35,20 @@ class TCPServer {
     threads_->SetThreadNums(thread_nums);
   }
 
-  void NewConnection(int connfd);
+  void HandleClose(const TcpconnectionPtr& conn);
+  void HandleCloseInLoop(const TcpconnectionPtr& ptr);
+  void HandleNewConnection(int connfd);
 
  private:
+  typedef std::unordered_map<int, TcpconnectionPtr> ConnectionMap;
+
   EventLoop* loop_;
-  EventLoopThreadPool* threads_;
-  Acceptor* acceptor_;
+  std::unique_ptr<EventLoopThreadPool> threads_;
+  std::unique_ptr<Acceptor> acceptor_;
 
   ConnectionCallback connection_callback_;
   MessageCallback message_callback_;
+  ConnectionMap connections_;
 };
 
 }  // namespace tiny_muduo

@@ -3,6 +3,8 @@
 
 #include <sys/epoll.h>
 
+#include <utility>
+
 #include "callback.h"
 #include "eventloop.h"
 
@@ -18,15 +20,15 @@ class Channel {
   void HandleEvent();
   // 设置读事件回调函数
   void SetReadCallback(const ReadCallback& callback) {
-    read_callback_ = callback;
+    read_callback_ = std::move(callback);
   }
   // 设置写事件回调函数(在这个库中并没有使用)
   void SetWriteCallback(const WriteCallback& callback) {
-    write_callback_ = callback;
+    write_callback_ = std::move(callback);
   }
   // 启用读事件的监听
   void EnableReading() {
-    events_ |= EPOLLIN;
+    events_ |= (EPOLLIN | EPOLLPRI);
     Update();
   }
   // 启用写事件的监听
@@ -37,6 +39,11 @@ class Channel {
 
   void DisableWriting() {
     events_ &= ~EPOLLOUT;
+    Update();
+  }
+
+  void DisableAll() {
+    events_ = 0;
     Update();
   }
 
@@ -54,7 +61,7 @@ class Channel {
   ChannelState state() { return state_; }
 
   bool IsWriting() { return events_ & EPOLLOUT; }
-  bool IsReading() { return events_ & EPOLLIN; }
+  bool IsReading() { return events_ & (EPOLLIN | EPOLLPRI); }
 
  private:
   EventLoop* loop_;

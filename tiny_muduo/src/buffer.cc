@@ -30,7 +30,7 @@ int Buffer::ReadFd(int fd) {
   int readn = readv(fd, iv, iovcnt);
 
   if (readn < 0) {
-    assert(readn >= 0);
+    printf("Buffer::ReadFd readn < 0 SYS_ERR\n");
   } else if (readn <= writable) {
     // 读取的数据n小于Buffer底层的可写空间
     // readv会直接把数据存放在begin() + writerIndex_

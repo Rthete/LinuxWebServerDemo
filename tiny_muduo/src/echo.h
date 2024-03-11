@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include "tcpconnectionptr.h"
+#include "tcpconnection.h"
 #include "tcpserver.h"
 
 static const int thread_nums = 8;
@@ -29,12 +29,12 @@ class EchoServer {
   }
 
   // 连接建立时的回调函数。在这里，它简单地打印一条连接建立的信息。
-  void ConnectionCallback(tiny_muduo::TCPConnectionPtr* connection_ptr) {
+  void ConnectionCallback(tiny_muduo::TcpConnection* connection_ptr) {
     printf("echo_server has a new connection \n");
   }
 
   // 消息到来时的回调函数。在这里，它从连接中获取消息，然后将消息原样发送回客户端，并打印一条消息到来的信息。
-  void MessageCallback(tiny_muduo::TCPConnectionPtr* connection_ptr) {
+  void MessageCallback(tiny_muduo::TcpConnection* connection_ptr) {
     // std::string message(connection_ptr->Get());
     // printf("echo_server get message \n");
     // connection_ptr->Send(message);

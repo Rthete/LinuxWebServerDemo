@@ -8,7 +8,7 @@ OBJS = $(BUILDDIR)/main.o \
 	   $(BUILDDIR)/httpcontent.o $(BUILDDIR)/httprequest.o \
 	   $(BUILDDIR)/tcpserver.o \
        $(BUILDDIR)/acceptor.o $(BUILDDIR)/channel.o $(BUILDDIR)/eventloop.o \
-       $(BUILDDIR)/epoller.o $(BUILDDIR)/tcpconnectionptr.o $(BUILDDIR)/thread.o \
+       $(BUILDDIR)/epoller.o $(BUILDDIR)/tcpconnection.o $(BUILDDIR)/thread.o \
 	   $(BUILDDIR)/eventloopthreadpool.o $(BUILDDIR)/eventloopthread.o \
 	   $(BUILDDIR)/buffer.o \
 	   $(TFLAG)
@@ -36,7 +36,7 @@ $(BUILDDIR)/httpcontent.o: $(SRCDIR)/httpcontent.cc $(SRCDIR)/httpcontent.h $(SR
 $(BUILDDIR)/httprequest.o: $(SRCDIR)/httprequest.cc $(SRCDIR)/httprequest.h $(SRCDIR)/httpstate.h
 	$(CC) $(CFLAG) $< -o $@
 
-$(BUILDDIR)/tcpserver.o: $(SRCDIR)/tcpserver.cc $(SRCDIR)/tcpserver.h $(SRCDIR)/acceptor.h $(SRCDIR)/tcpconnectionptr.h
+$(BUILDDIR)/tcpserver.o: $(SRCDIR)/tcpserver.cc $(SRCDIR)/tcpserver.h $(SRCDIR)/acceptor.h $(SRCDIR)/tcpconnection.h
 	$(CC) $(CFLAG) $< -o $@
 
 $(BUILDDIR)/acceptor.o: $(SRCDIR)/acceptor.cc $(SRCDIR)/acceptor.h $(SRCDIR)/address.h $(SRCDIR)/channel.h
@@ -51,7 +51,7 @@ $(BUILDDIR)/eventloop.o: $(SRCDIR)/eventloop.cc $(SRCDIR)/eventloop.h $(SRCDIR)/
 $(BUILDDIR)/epoller.o: $(SRCDIR)/epoller.cc $(SRCDIR)/epoller.h $(SRCDIR)/channel.h
 	$(CC) $(CFLAG) $< -o $@
 
-$(BUILDDIR)/tcpconnectionptr.o: $(SRCDIR)/tcpconnectionptr.cc $(SRCDIR)/tcpconnectionptr.h $(SRCDIR)/channel.h \
+$(BUILDDIR)/tcpconnection.o: $(SRCDIR)/tcpconnection.cc $(SRCDIR)/tcpconnection.h $(SRCDIR)/channel.h \
 								$(SRCDIR)/buffer.h $(SRCDIR)/httpcontent.h
 	$(CC) $(CFLAG) $< -o $@
 
