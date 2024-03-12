@@ -4,8 +4,8 @@
 
 ## ToDoList
 
-- [ ] buffer 类
-- [ ] http 状态机
+- [x] buffer 类
+- [x] http 状态机
 - [ ] 同步/异步日志
 - [ ] 定时器
 
@@ -317,7 +317,7 @@ EventLoop::Loop connfd 26
 Epoller Poll start
 ```
 
-## Tiny Muduo: Buffer 类
+## 5 Tiny Muduo: Buffer 类
 
 ### Buffer 的目的
 
@@ -343,7 +343,7 @@ retrieve 就是从 Buffer 读取数据。
 
 给 readv 两个缓冲区，第一个就是 Buffer 对象的空间（一般是堆空间），第二个是 65536 字节的栈空间。readv 会先写入第一个缓冲区，没写完再写入第二个缓冲区。如果读取了 65536 字节数据，fd 上的数据还是没有读完，那就等 Poller 下一次上报（工作在 LT 模式），继续读取，数据不会丢失。
 
-## Tiny Muduo: Http 类
+## 6 Tiny Muduo: Http 类
 
 ### Request Headers 的一个示例
 
@@ -385,7 +385,7 @@ sec-ch-ua-platform: "Windows"
 
 设置 response 的状态码、message、body 等信息，并组成一整条栈上的字符串，append 到 buffer 中，用于发送。
 
-## Tiny Muduo 优化
+## 7 Tiny Muduo 优化
 
 - listen 的 backlog 改为 SOMAXCONN。
 
@@ -501,7 +501,7 @@ Speed=2340146 pages/min, 3627229 bytes/sec.
 Requests: 1170073 susceed, 0 failed.
 ```
 
-## 一个关于 muduo 的总结
+## 附1-关于 muduo 的总结
 
 [Muduo 启动 && 收到请求时的流程梳理（文字版）](https://zhuanlan.zhihu.com/p/606436239)
 
