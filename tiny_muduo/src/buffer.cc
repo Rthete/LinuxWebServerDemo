@@ -27,7 +27,7 @@ int Buffer::ReadFd(int fd) {
    *      iov：封装了缓冲区地址和可写空间大小的结构体
    *      iovcnt：缓冲区个数
    */
-  int readn = readv(fd, iv, iovcnt);
+  int readn = ::readv(fd, iv, iovcnt);
 
   if (readn < 0) {
     printf("Buffer::ReadFd readn < 0 SYS_ERR\n");

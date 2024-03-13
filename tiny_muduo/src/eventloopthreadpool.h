@@ -3,11 +3,13 @@
 
 #include <vector>
 
+#include "noncopyable.h"
+
 namespace tiny_muduo {
 class EventLoopThread;
 class EventLoop;
 
-class EventLoopThreadPool {
+class EventLoopThreadPool : public NoncopyAble {
  public:
   typedef std::vector<EventLoopThread*> Thread;
   typedef std::vector<EventLoop*> Loop;

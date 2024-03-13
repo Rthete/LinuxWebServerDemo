@@ -41,7 +41,7 @@ void TCPServer::HandleCloseInLoop(const TcpconnectionPtr& ptr) {
 // 在这里，它创建一个TcpConnection对象表示新连接，并设置连接建立、消息到来时的回调函数，然后将其加入事件循环。
 void TCPServer::HandleNewConnection(int connfd) {
   EventLoop* loop = threads_->NextLoop();
-  TcpconnectionPtr ptr(new TcpConnection(loop_, connfd));
+  TcpconnectionPtr ptr(new TcpConnection(loop, connfd));
   connections_[connfd] = ptr;
   ptr->SetConnectionCallback(connection_callback_);
   ptr->SetMessageCallback(message_callback_);

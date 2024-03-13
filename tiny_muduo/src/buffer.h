@@ -8,12 +8,16 @@
 #include <string>
 #include <vector>
 
+#include "noncopyable.h"
+
 using std::string;
 
 namespace tiny_muduo {
 static const int kPrePendIndex = 8;
+static const int kInitialSize = 1024;
+static const char *kCRLF = "\r\n";
 
-class Buffer {
+class Buffer : NoncopyAble {
  public:
   Buffer()
       : buffer_(1024),
@@ -35,6 +39,10 @@ class Buffer {
   char *beginwrite() { return begin() + write_index_; }
   const char *beginwrite() const { return begin() + write_index_; }
 
+  const char *FindCRLF() const {
+    const char *find = std::search(Peek(), beginwrite(), kCRLF, kCRLF + 2);
+    return find == beginwrite() ? nullptr : find;
+  }
   void Append(const char *message) { Append(message, strlen(message)); }
 
   void Append(const char *message, int len) {
@@ -91,12 +99,10 @@ class Buffer {
 
   string PeekAllAsString() { return string(beginread(), beginwrite()); }
 
-  string PeekAsString() { return string(beginread(), beginwrite()); }
-
   // 待读取数据长度：[readerIndex_, writerIndex_]
   int readablebytes() const { return write_index_ - read_index_; }
   // 可写空闲大小
-  int writablebytes() const { return buffer_.capacity() - write_index_; }
+  int writablebytes() const { return buffer_.size() - write_index_; }
   int prependablebytes() const { return read_index_; }
 
   void MakeSureEnoughStorage(int len) {
@@ -110,7 +116,7 @@ class Buffer {
       read_index_ = kPrePendIndex;
     } else {
       // 直接在writerIndex_后面再扩大len的空间(利用vector的特性)
-      buffer_.resize(buffer_.size() + len);
+      buffer_.resize(write_index_ + len);
     }
   }
 

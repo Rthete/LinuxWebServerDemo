@@ -4,11 +4,12 @@
 #include <pthread.h>
 
 #include "mutex.h"
+#include "noncopyable.h"
 
 namespace tiny_muduo {
-class Condition {
+class Condition : public NoncopyAble {
  public:
-  Condition(MutexLock& mutex) : mutex_(mutex) {
+  explicit Condition(MutexLock& mutex) : mutex_(mutex) {
     pthread_cond_init(&cond_, nullptr);
   }
   ~Condition() { pthread_cond_destroy(&cond_); }

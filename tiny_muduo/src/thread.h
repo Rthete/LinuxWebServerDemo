@@ -6,9 +6,10 @@
 #include <functional>
 
 #include "latch.h"
+#include "noncopyable.h"
 
 namespace tiny_muduo {
-class Thread {
+class Thread : public NoncopyAble {
  public:
   typedef std::function<void()> ThreadFunc;
 

@@ -1,6 +1,5 @@
 #include "epoller.h"
 
-#define NDEBUG
 #include <assert.h>
 #include <fcntl.h>
 #include <stdio.h>

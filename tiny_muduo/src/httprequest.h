@@ -9,11 +9,12 @@
 using std::string;
 
 namespace tiny_muduo {
+
 static const char http[] = "HTTP/1.";
 
 enum Method { kGet, kPost, kPut, kDelete, kTrace, kOptions, kConnect, kPatch };
 
-enum Version { kHttp10, kHttp11 };
+enum Version { kUnknown, kHttp10, kHttp11 };
 
 class HttpRequest {
  public:
@@ -22,14 +23,11 @@ class HttpRequest {
 
   bool ParseRequestMethod(const char* start, const char* end);
 
-  void ParseRequestLine(const char* start, const char* end,
-                        HttpRequestParseState& state);
+  bool ParseRequestLine(const char* start, const char* end);
 
-  void ParseHeaders(const char* start, const char* end,
-                    HttpRequestParseState& state);
+  bool ParseHeaders(const char* start, const char* colon, const char* end);
 
-  void ParseBody(const char* start, const char* end,
-                 HttpRequestParseState& state);
+  bool ParseBody(const char* start, const char* end);
 
   Method method() const { return method_; }
   const string& path() const { return path_; }
@@ -37,22 +35,21 @@ class HttpRequest {
   Version version() const { return version_; }
   const std::map<string, string>& headers() const { return headers_; }
 
+  void Swap(HttpRequest& req);
+
   string GetHeader(const string& header) const {
+    string ret;
     auto iter = headers_.find(header);
-    if (iter == headers_.end()) {
-      return string();
-    } else {
-      return iter->second;
-    }
+    return iter == headers_.end() ? ret : iter->second;
   }
 
  private:
   Method method_;
+  Version version_;
   string path_;
   string query_;
-  Version version_;
   std::map<string, string> headers_;
 };
-}  // namespace tiny_muduo
 
+}  // namespace tiny_muduo
 #endif

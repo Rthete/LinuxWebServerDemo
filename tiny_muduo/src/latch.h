@@ -3,12 +3,13 @@
 
 #include "condition.h"
 #include "mutex.h"
+#include "noncopyable.h"
 
 namespace tiny_muduo {
 
-class Latch {
+class Latch : public NoncopyAble {
  public:
-  Latch(int count) : count_(count), mutex_(), cond_(mutex_) {}
+  explicit Latch(int count) : count_(count), mutex_(), cond_(mutex_) {}
 
   void CountDown() {
     MutexLockGuard lock(mutex_);

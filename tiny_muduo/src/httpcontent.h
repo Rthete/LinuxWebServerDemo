@@ -19,14 +19,13 @@ class HttpContent {
 
   const HttpRequest& request() { return request_; }
   void ResetContentState() {
+    HttpRequest tmp;
+    request_.Swap(tmp);
     parse_state_ = kParseRequestLine;
-    line_state_ = kLineOK;
   }
 
  private:
-  int checked_index_;
   HttpRequest request_;
-  HttpRequestParseLine line_state_;
   HttpRequestParseState parse_state_;
 };
 }  // namespace tiny_muduo

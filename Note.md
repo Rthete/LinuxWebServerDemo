@@ -393,7 +393,7 @@ sec-ch-ua-platform: "Windows"
 
 - 使用 unique_ptr 包装 Channel & Epoller & Acceptor & EventLoopThreadPool。
 
-- 使用移动语义传递回调函数。
+- 使用右值引用+移动语义传递回调函数。
 
 - 各个相关的类的析构函数中 close 不需要的文件描述符。
 
@@ -402,6 +402,10 @@ sec-ch-ua-platform: "Windows"
   - 如果状态是 kNew 或者 kDeleted，说明该文件描述符是新添加的或者已经被删除的。对于新添加的文件描述符，需要将其加入到 channels* 中，并且执行 EPOLL_CTL_ADD 操作来添加到 epoll 实例中，并更新该文件描述符的状态为 kAdded；对于已经被删除的文件描述符，也需要确保其在 channels* 中存在，并执行 EPOLL_CTL_ADD 操作来重新添加到 epoll 实例中，并更新状态为 kAdded。
 
   - 如果状态不是 kNew 或者 kDeleted，说明该文件描述符已经存在并且未被删除。如果事件为 0，则执行 EPOLL_CTL_DEL 操作删除该文件描述符的监视，并更新其状态为 kDeleted；否则，执行 EPOLL_CTL_MOD 操作修改该文件描述符的监视。
+
+- 设置继承 Noncopyable 类，防止拷贝。
+
+- 对线程相关的一些类改为显式构造。
 
 ### 并发测试
 
@@ -501,7 +505,7 @@ Speed=2340146 pages/min, 3627229 bytes/sec.
 Requests: 1170073 susceed, 0 failed.
 ```
 
-## 附1-关于 muduo 的总结
+## 附 1-关于 muduo 的总结
 
 [Muduo 启动 && 收到请求时的流程梳理（文字版）](https://zhuanlan.zhihu.com/p/606436239)
 

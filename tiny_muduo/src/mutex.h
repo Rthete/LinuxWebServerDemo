@@ -3,8 +3,10 @@
 
 #include <pthread.h>
 
+#include "noncopyable.h"
+
 namespace tiny_muduo {
-class MutexLock {
+class MutexLock : public NoncopyAble {
  public:
   MutexLock() { pthread_mutex_init(&mutex_, nullptr); }
   ~MutexLock() { pthread_mutex_destroy(&mutex_); }
@@ -21,7 +23,7 @@ class MutexLock {
 
 class MutexLockGuard {
  public:
-  MutexLockGuard(MutexLock& mutex) : mutex_(mutex) { mutex_.Lock(); }
+  explicit MutexLockGuard(MutexLock& mutex) : mutex_(mutex) { mutex_.Lock(); }
   ~MutexLockGuard() { mutex_.Unlock(); }
 
  private:

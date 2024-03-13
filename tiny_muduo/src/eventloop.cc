@@ -1,11 +1,27 @@
 #include "eventloop.h"
 
+#include <signal.h>
 #include <sys/eventfd.h>
+#include <sys/types.h>
 #include <unistd.h>  // read()
 
 #include "channel.h"
 
 using namespace tiny_muduo;
+
+namespace {
+/** SIGPIPE
+ * 当程序尝试向一个已经关闭的管道写入数据时，系统会产生 SIGPIPE 信号，
+ * 如果不处理这个信号，程序默认会终止。
+ * 通过忽略 SIGPIPE 信号，程序可以继续运行而不受到管道关闭的影响。
+ */
+class IgnoreSigPipe {
+ public:
+  IgnoreSigPipe() { ::signal(SIGPIPE, SIG_IGN); }
+};
+
+IgnoreSigPipe initObj;
+}  // namespace
 
 EventLoop::EventLoop()
     : tid_(::pthread_self()),
@@ -41,7 +57,9 @@ void EventLoop::Loop() {
 
 void EventLoop::HandleRead() {
   uint64_t read_one_byte = 1;
-  ::read(wakeup_fd_, &read_one_byte, sizeof(read_one_byte));
+  ssize_t read_size = ::read(wakeup_fd_, &read_one_byte, sizeof(read_one_byte));
+  (void)read_size;
+  assert(read_size == sizeof(read_one_byte));
   return;
 }
 
@@ -53,7 +71,10 @@ void EventLoop::QueueOneFunc(BasicFunc func) {
 
   if (!IsInThreadPool() || calling_functors_) {
     uint64_t write_one_byte = 1;
-    ::write(wakeup_fd_, &write_one_byte, sizeof(write_one_byte));
+    int write_size =
+        ::write(wakeup_fd_, &write_one_byte, sizeof(write_one_byte));
+    (void)write_size;
+    assert(write_size == sizeof(write_one_byte));
   }
 }
 

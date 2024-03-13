@@ -3,11 +3,12 @@
 
 #include "condition.h"
 #include "mutex.h"
+#include "noncopyable.h"
 #include "thread.h"
 
 namespace tiny_muduo {
 class EventLoop;
-class EventLoopThread {
+class EventLoopThread : public NoncopyAble {
  public:
   EventLoopThread();
   ~EventLoopThread();

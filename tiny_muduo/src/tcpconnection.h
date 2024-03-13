@@ -13,13 +13,15 @@
 #include "callback.h"
 #include "channel.h"
 #include "httpcontent.h"
+#include "noncopyable.h"
 
 using std::string;
 
 namespace tiny_muduo {
 class EventLoop;
 
-class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
+class TcpConnection : public std::enable_shared_from_this<TcpConnection>,
+                      NoncopyAble {
  public:
   enum ConnectionState { kConnected, kDisconnected };
 
@@ -27,15 +29,25 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   ~TcpConnection();
 
   // 设置连接建立时的回调函数
-  void SetConnectionCallback(ConnectionCallback callback) {
+  void SetConnectionCallback(ConnectionCallback&& callback) {
     connection_callback_ = std::move(callback);
   }
+  void SetConnectionCallback(const ConnectionCallback& callback) {
+    connection_callback_ = callback;
+  }
   // 设置消息到来时的回调函数
-  void SetMessageCallback(MessageCallback callback) {
+  void SetMessageCallback(MessageCallback&& callback) {
     message_callback_ = std::move(callback);
   }
-  void SetCloseCallback(CloseCallback callback) {
+  void SetMessageCallback(const MessageCallback& callback) {
+    message_callback_ = callback;
+  }
+  // 设置连接关闭时的回调函数
+  void SetCloseCallback(CloseCallback&& callback) {
     close_callback_ = std::move(callback);
+  }
+  void SetCloseCallback(const CloseCallback& callback) {
+    close_callback_ = callback;
   }
   // 表示连接建立，启用读事件监听，并调用连接建立的回调函数通知上层代码连接已建立。
   void ConnectionEstablished() {

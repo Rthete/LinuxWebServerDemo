@@ -7,11 +7,12 @@
 
 #include "callback.h"
 #include "eventloop.h"
+#include "noncopyable.h"
 
 namespace tiny_muduo {
 enum ChannelState { kNew, kAdded, kDeleted };
 
-class Channel {
+class Channel : public NoncopyAble {
  public:
   Channel(EventLoop* loop, const int& fd);
   ~Channel();
@@ -19,12 +20,18 @@ class Channel {
   // 根据事件类型调用相应回调函数(读or写)
   void HandleEvent();
   // 设置读事件回调函数
-  void SetReadCallback(const ReadCallback& callback) {
+  void SetReadCallback(ReadCallback&& callback) {
     read_callback_ = std::move(callback);
   }
+  void SetReadCallback(const ReadCallback& callback) {
+    read_callback_ = callback;
+  }
   // 设置写事件回调函数(在这个库中并没有使用)
+  void SetWriteCallback(WriteCallback&& callback) {
+    read_callback_ = std::move(callback);
+  }
   void SetWriteCallback(const WriteCallback& callback) {
-    write_callback_ = std::move(callback);
+    write_callback_ = callback;
   }
   // 启用读事件的监听
   void EnableReading() {

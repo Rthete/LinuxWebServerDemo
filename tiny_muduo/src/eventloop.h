@@ -7,12 +7,13 @@
 
 #include "epoller.h"
 #include "mutex.h"
+#include "noncopyable.h"
 
 namespace tiny_muduo {
 class Epoller;
 class Channel;
 
-class EventLoop {
+class EventLoop : public NoncopyAble {
  public:
   typedef std::vector<Channel*> Channels;
   typedef std::function<void()> BasicFunc;

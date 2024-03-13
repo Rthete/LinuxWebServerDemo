@@ -5,12 +5,13 @@
 #include "callback.h"
 #include "eventloop.h"
 #include "eventloopthreadpool.h"
+#include "noncopyable.h"
 
 namespace tiny_muduo {
 class Address;
 // class EventLoopThreadPool;
 
-class TCPServer {
+class TCPServer : public NoncopyAble {
  public:
   TCPServer(EventLoop* loop, const Address& address);
   ~TCPServer();
@@ -22,10 +23,16 @@ class TCPServer {
     loop_->RunOneFunc(std::bind(&Acceptor::Listen, acceptor_.get()));
   }
   // 设置连接建立时的回调函数
+  void SetConnectionCallback(ConnectionCallback&& callback) {
+    connection_callback_ = std::move(callback);
+  }
   void SetConnectionCallback(const ConnectionCallback& callback) {
     connection_callback_ = callback;
   }
   // 设置消息到来时的回调函数
+  void SetMessageCallback(MessageCallback&& callback) {
+    message_callback_ = std::move(callback);
+  }
   void SetMessageCallback(const MessageCallback& callback) {
     message_callback_ = callback;
   }

@@ -1,6 +1,8 @@
 #include "httprequest.h"
 
 #include <algorithm>
+#include <string>
+#include <utility>
 
 #include "httpstate.h"
 
@@ -34,94 +36,68 @@ bool HttpRequest::ParseRequestMethod(const char* start, const char* end) {
   } else {
     has_method = false;
   }
+
   return has_method;
 }
 
-// Request Line 形如：GET / HTTP/1.1
-void HttpRequest::ParseRequestLine(const char* start, const char* end,
-                                   HttpRequestParseState& state) {
-  {
-    const char* space = std::find(start, end, ' ');
-    if (space == end) {
-      state = kParseErrno;
-      return;
-    }
-
-    if (!ParseRequestMethod(start, space)) {
-      state = kParseErrno;
-      return;
-    }
-    start = space + 1;
+bool HttpRequest::ParseRequestLine(const char* start, const char* end) {
+  const char* space = nullptr;
+  space = std::find(start, end, ' ');
+  if (space == end) {
+    return false;
   }
 
-  {
-    const char* space = std::find(start, end, ' ');
-    if (space == end) {
-      state = kParseErrno;
-      return;
-    }
+  if (!ParseRequestMethod(start, space)) {
+    return false;
+  }
+  start = space + 1;
 
-    const char* query = std::find(start, end, '?');
-    if (query != end) {
-      path_ = std::move(string(start, query));
-      query_ = std::move(string(query + 1, space));
-    } else {
-      path_ = std::move(string(start, space));
-    }
-    start = space + 1;
+  space = std::find(start, end, ' ');
+  if (space == end) {
+    return false;
   }
 
-  {
-    // 在request字符串中寻找形如"HTTP/1."的子串
-    const int httplen = sizeof(http) / sizeof(char) - 1;
-    const char* httpindex = std::search(start, end, http, http + httplen);
-    if (httpindex == end) {
-      state = kParseErrno;
-      return;
-    }
-
-    // 解析是1.0还是1.1
-    const char chr = *(httpindex + httplen);
-    if (httpindex + httplen + 1 == end && (chr == '1' || chr == '0')) {
-      if (chr == '1') {
-        version_ = kHttp11;
-      } else {
-        version_ = kHttp10;
-      }
-    } else {
-      state = kParseErrno;
-      return;
-    }
+  const char* query = std::find(start, end, '?');
+  if (query != end) {
+    path_.assign(start, query);
+    query_.assign(query + 1, space);
+  } else {
+    path_.assign(start, space);
   }
-  // 解析完request line后将状态置为解析headers
-  state = kParseHeaders;
+  start = space + 1;
+
+  bool parsehttp = (start + 8 == end) && std::equal(start, end - 1, http);
+  if (!parsehttp || (*(end - 1) != '0' && *(end - 1) != '1')) {
+    version_ = kUnknown;
+    return false;
+  }
+
+  if (*(end - 1) == '0') {
+    version_ = kHttp10;
+  } else {
+    version_ = kHttp11;
+  }
+
+  return true;
 }
 
-// 解析headers中的键值对，并存入headers_中
-// 例如: Host: www.example.com
-// 得到headers{Host, www.example.com}
-void HttpRequest::ParseHeaders(const char* start, const char* end,
-                               HttpRequestParseState& state) {
-  // 由于暂未处理body，在headers解析完后将状态标识为解析结束
-  if (start == end && *start == '\r' && *(start + 1) == '\n') {
-    state = kParseGotCompleteRequest;
-    return;
-  }
+bool HttpRequest::ParseBody(const char* start, const char* end) { return true; }
 
-  const char* colon = std::find(start, end, ':');
-  if (colon == end) {
-    state = kParseErrno;
-    return;
-  }
-
-  const char* valid = colon + 1;
-  while (*(valid++) != ' ') {
+bool HttpRequest::ParseHeaders(const char* start, const char* colon,
+                               const char* end) {
+  const char* vaildstart = colon + 1;
+  while (*vaildstart == ' ') {
+    ++vaildstart;
   }
   headers_[std::move(string(start, colon))] =
-      std::move(string(colon + 1, valid));
-  return;
+      std::move(string(vaildstart, end));
+  return true;
 }
 
-// TODO: 暂未实现解析请求体
-void HttpRequest::ParseBody(const char* start, const char* end,
-                            HttpRequestParseState& state) {}
+void HttpRequest::Swap(HttpRequest& req) {
+  method_ = req.method_;
+  version_ = req.version_;
+  path_.swap(req.path_);
+  query_.swap(req.query_);
+  headers_.swap(req.headers_);
+}
