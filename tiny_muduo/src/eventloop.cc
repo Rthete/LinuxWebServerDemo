@@ -37,13 +37,15 @@ EventLoop::EventLoop()
 EventLoop::~EventLoop() {
   wakeup_channel_->DisableAll();
   Remove(wakeup_channel_.get());
+  close(wakeup_fd_);
 }
 
 // 无限循环，不断地调用epoller_的Poll方法进行事件轮询
 // 在事件就绪后调用相应通道的HandleEvent方法处理事件。
 // 然后清空活跃通道列表，准备下一轮事件轮询。
 void EventLoop::Loop() {
-  while (1) {
+  assert(IsInThreadPool());
+  while (true) {
     active_channels_.clear();
     epoller_->Poll(active_channels_);
     printf("EventLoop::Loop eventnum %ld\n", active_channels_.size());

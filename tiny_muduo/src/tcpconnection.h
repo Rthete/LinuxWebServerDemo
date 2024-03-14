@@ -76,7 +76,6 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection>,
   EventLoop* loop_;
   int fd_;
   ConnectionState state_;
-  bool shutdown_;
   std::unique_ptr<Channel> channel_;
   Buffer input_buffer_;
   Buffer output_buffer_;

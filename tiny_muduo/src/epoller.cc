@@ -89,10 +89,11 @@ void Epoller::Update(Channel* channel) {
 // 将通道的事件从事件表中添加/删除
 void Epoller::UpdateChannel(int operation, Channel* channel) {
   struct epoll_event event;
-  memset(&event, '\0', sizeof(event));
   event.events = channel->events();
   event.data.ptr = static_cast<void*>(channel);
 
-  epoll_ctl(epollfd_, operation, channel->fd(), &event);
+  if (epoll_ctl(epollfd_, operation, channel->fd(), &event) < 0) {
+    printf("Epoller::UpdateChannel epoll_ctl SYS_ERR\n");
+  }
   return;
 }

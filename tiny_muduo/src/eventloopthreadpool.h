@@ -1,6 +1,7 @@
 #ifndef TINY_MODUO_EVENTLOOPTHREADPOOL_H_
 #define TINY_MODUO_EVENTLOOPTHREADPOOL_H_
 
+#include <memory>
 #include <vector>
 
 #include "noncopyable.h"
@@ -11,7 +12,7 @@ class EventLoop;
 
 class EventLoopThreadPool : public NoncopyAble {
  public:
-  typedef std::vector<EventLoopThread*> Thread;
+  typedef std::vector<std::unique_ptr<EventLoopThread>> Thread;
   typedef std::vector<EventLoop*> Loop;
 
   EventLoopThreadPool(EventLoop* loop);

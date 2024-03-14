@@ -1,7 +1,13 @@
 #ifndef TINY_MUDUO_HTTPSERVER_H_
 #define TINY_MUDUO_HTTPSERVER_H_
 
+#include <stdio.h>
+
+#include <functional>
+#include <utility>
+
 #include "buffer.h"
+#include "callback.h"
 #include "httpcontent.h"
 #include "httprequest.h"
 #include "httpresponse.h"
@@ -34,7 +40,12 @@ class HttpServer {
   void ConnectionCallback(const TcpconnectionPtr& connection) {}
 
   void MessageCallback(const TcpconnectionPtr& connection, Buffer* buffer);
-  void SetHttpResponseCallback(HttpResponseCallback response_callback) {
+
+  void SetHttpResponseCallback(const HttpResponseCallback& response_callback) {
+    response_callback_ = response_callback;
+  }
+
+  void SetHttpResponseCallback(HttpResponseCallback&& response_callback) {
     response_callback_ = std::move(response_callback);
   }
 

@@ -1,6 +1,12 @@
+#include <stdio.h>
+
+#include <iostream>
+#include <string>
+
 #include "address.h"
 #include "eventloop.h"
 #include "httprequest.h"
+#include "httpresponse.h"
 #include "httpresponsefile.h"
 #include "httpserver.h"
 
@@ -25,40 +31,32 @@ void HttpResponseCallback(const HttpRequest& request, HttpResponse& response) {
       response.SetBody(love6_website);
     } else if (path == "/hello") {
       response.SetStatusCode(k200OK);
-      response.SetBodyType("text/plain");
+      response.SetBodyType("text/html");
       response.SetBody("Hello, world!\n");
-    } else if (path == "/favicon") {
+    } else if (path == "/favicon.ico" || path == "/favicon") {
       response.SetStatusCode(k200OK);
       response.SetBodyType("image/png");
       response.SetBody(string(favicon, sizeof(favicon)));
     } else {
       response.SetStatusCode(k404NotFound);
       response.SetStatusMessage("Not Found");
-      response.SetBody("Sorry, Not Found\n");
       response.SetCloseConnection(true);
       return;
     }
   }
 }
 
-int main() {
-  // 创建事件循环
-  tiny_muduo::EventLoop loop;
+int main(int argc, char* argv[]) {
+  if (argc <= 1) {
+    printf("Usage: %s portname\n", argv[0]);
+    return 0;
+  }
 
-  // 设置监听地址和端口
-  tiny_muduo::Address listen_addr("2022");
-
-  // // 创建Echo服务器，绑定回调函数
-  // EchoServer echo_server(&loop, listen_addr);
-  // // 启动Echo服务器，调用listen
-  // echo_server.Start();
-
-  // 创建HttpServer
-  HttpServer server(&loop, listen_addr);
+  EventLoop loop;
+  Address listen_address(argv[1]);
+  HttpServer server(&loop, listen_address);
   server.SetHttpResponseCallback(HttpResponseCallback);
   server.Start();
-
-  // 运行事件循环
   loop.Loop();
 
   return 0;

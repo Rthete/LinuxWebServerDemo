@@ -19,8 +19,8 @@ class HttpContent {
 
   const HttpRequest& request() { return request_; }
   void ResetContentState() {
-    HttpRequest tmp;
-    request_.Swap(tmp);
+    // HttpRequest tmp;
+    // request_.Swap(tmp);
     parse_state_ = kParseRequestLine;
   }
 

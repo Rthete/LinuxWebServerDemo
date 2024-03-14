@@ -1,6 +1,5 @@
 #include "tcpconnection.h"
 
-#include <asm-generic/errno.h>
 #include <assert.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -120,5 +119,5 @@ void TcpConnection::Send(Buffer* buffer) {
 
 void TcpConnection::Send(const string& message) {
   if (state_ == kDisconnected) return;
-  Send(message.data(), sizeof(message.size()));
+  Send(message.data(), message.size());
 }

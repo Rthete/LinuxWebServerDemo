@@ -10,7 +10,7 @@ using namespace tiny_muduo;
 TCPServer::TCPServer(EventLoop* loop, const Address& address)
     : loop_(loop),
       threads_(new EventLoopThreadPool(loop_)),
-      acceptor_(new Acceptor(loop, address)) {
+      acceptor_(new Acceptor(loop_, address)) {
   printf("[Cstr]: TCPServer\n");
   acceptor_->SetNewConnectionCallBack(
       std::bind(&TCPServer::HandleNewConnection, this, _1));
@@ -46,5 +46,5 @@ void TCPServer::HandleNewConnection(int connfd) {
   ptr->SetConnectionCallback(connection_callback_);
   ptr->SetMessageCallback(message_callback_);
   ptr->SetCloseCallback(std::bind(&TCPServer::HandleClose, this, _1));
-  loop_->RunOneFunc(std::bind(&TcpConnection::ConnectionEstablished, ptr));
+  loop->RunOneFunc(std::bind(&TcpConnection::ConnectionEstablished, ptr));
 }

@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "noncopyable.h"
+
 namespace {
 const int kDefaultEvents = 16;
 }
@@ -14,7 +16,7 @@ namespace tiny_muduo {
 
 class Channel;
 
-class Epoller {
+class Epoller : public NoncopyAble {
  public:
   typedef std::vector<epoll_event> Events;
   typedef std::vector<Channel*> Channels;
