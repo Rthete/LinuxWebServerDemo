@@ -39,6 +39,8 @@ class Buffer : NoncopyAble {
   char *beginwrite() { return begin() + write_index_; }
   const char *beginwrite() const { return begin() + write_index_; }
 
+  void HasWritten(int len) { write_index_ += len; }
+
   const char *FindCRLF() const {
     const char *find = std::search(Peek(), beginwrite(), kCRLF, kCRLF + 2);
     return find == beginwrite() ? nullptr : find;
