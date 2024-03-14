@@ -415,6 +415,8 @@ sec-ch-ua-platform: "Windows"
 
 WSL Ubuntu 环境下开 8 个线程的测试：
 
+15000 QPS
+
 ```
 ➜  webbench git:(master) ✗ ./webbench -c 1000 -t 30 http://127.0.0.1:2022/hello
   Webbench - Simple Web Benchmark 1.5
@@ -425,6 +427,22 @@ WSL Ubuntu 环境下开 8 个线程的测试：
 
   Speed=902626 pages/min, 752188 bytes/sec.
   Requests: 451313 susceed, 0 failed.
+```
+
+继续优化之后（不使用日志）：
+
+76000 QPS
+
+```
+➜  webbench git:(master) ✗ ./webbench -c 10000 -t 5 http://127.0.0.1:2022/hello
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+
+Benchmarking: GET http://127.0.0.1:2022/hello
+10000 clients, running 5 sec.
+
+Speed=5140116 pages/min, 8138536 bytes/sec.
+Requests: 428343 susceed, 0 failed.
 ```
 
 使用 lsof 查看系统已打开的文件：

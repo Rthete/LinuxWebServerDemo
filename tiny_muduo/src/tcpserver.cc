@@ -11,7 +11,7 @@ TCPServer::TCPServer(EventLoop* loop, const Address& address)
     : loop_(loop),
       threads_(new EventLoopThreadPool(loop_)),
       acceptor_(new Acceptor(loop_, address)) {
-  printf("[Cstr]: TCPServer\n");
+  // printf("[Cstr]: TCPServer\n");
   acceptor_->SetNewConnectionCallBack(
       std::bind(&TCPServer::HandleNewConnection, this, _1));
 }

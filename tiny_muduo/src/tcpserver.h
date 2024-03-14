@@ -38,7 +38,7 @@ class TCPServer : public NoncopyAble {
   }
 
   void SetThreadNums(int thread_nums) {
-    printf("ThreadNums: %d\n", thread_nums);
+    // printf("ThreadNums: %d\n", thread_nums);
     threads_->SetThreadNums(thread_nums);
   }
 

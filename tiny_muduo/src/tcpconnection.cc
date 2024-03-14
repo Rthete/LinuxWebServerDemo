@@ -19,13 +19,13 @@ TcpConnection::TcpConnection(EventLoop* loop, int connfd)
       state_(kDisconnected),
       channel_(new Channel(loop_, fd_)),
       shutdown_state_(false) {
-  printf("[Cstr]: TcpConnection\n");
+  // printf("[Cstr]: TcpConnection\n");
   channel_->SetReadCallback(std::bind(&TcpConnection::HandleMessage, this));
   channel_->SetWriteCallback(std::bind(&TcpConnection::HandleWrite, this));
 }
 
 TcpConnection::~TcpConnection() {
-  // printf("TcpConnection::~TcpConnection destructor\n");
+  // // printf("TcpConnection::~TcpConnection destructor\n");
   ::close(fd_);
 }
 
@@ -51,10 +51,11 @@ void TcpConnection::HandleMessage() {
   } else if (read_size == 0) {
     HandleClose();
   } else {
-    printf("TcpConnection::HandleMessage Read SYS_Err\n");
+    // printf("TcpConnection::HandleMessage Read SYS_Err\n");
   }
 }
 
+// 在套接字可写时，将输出缓冲区中的数据写入到套接字中
 void TcpConnection::HandleWrite() {
   if (channel_->IsWriting()) {
     int len = output_buffer_.readablebytes();
@@ -63,7 +64,7 @@ void TcpConnection::HandleWrite() {
     if (send_size < 0) {
       assert(send_size > 0);
       if (errno != EWOULDBLOCK) {
-        printf("TcpConnection::HandleWrite Write SYS_ERR\n");
+        // printf("TcpConnection::HandleWrite Write SYS_ERR\n");
       }
       return;
     }
@@ -86,7 +87,7 @@ void TcpConnection::Send(const char* message, int len) {
       remaining -= send_size;
     } else {
       if (errno != EWOULDBLOCK) {
-        printf("TcpConnection::Send Write SYS_ERR\n");
+        // printf("TcpConnection::Send Write SYS_ERR\n");
       }
       return;
     }
@@ -106,7 +107,7 @@ void TcpConnection::Shutdown() {
   if (!channel_->IsWriting()) {
     int ret = ::shutdown(fd_, SHUT_WR);
     if (ret < 0) {
-      printf("TcpConnection::Shutdown shutdown SYS_ERR\n");
+      // printf("TcpConnection::Shutdown shutdown SYS_ERR\n");
     }
   }
 }

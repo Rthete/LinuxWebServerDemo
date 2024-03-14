@@ -8,7 +8,7 @@ using namespace tiny_muduo;
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop* loop)
     : base_loop_(loop), thread_nums_(0), next_(0) {
-  printf("[Cstr]: EventLoopThreadPool\n");
+  // printf("[Cstr]: EventLoopThreadPool\n");
 }
 
 EventLoopThreadPool::~EventLoopThreadPool() {}

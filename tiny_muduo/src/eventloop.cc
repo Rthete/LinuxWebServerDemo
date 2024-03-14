@@ -29,7 +29,7 @@ EventLoop::EventLoop()
       wakeup_fd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)),
       wakeup_channel_(new Channel(this, wakeup_fd_)),
       calling_functors_(false) {
-  printf("[Cstr]: EventLoop\n");
+  // printf("[Cstr]: EventLoop\n");
   wakeup_channel_->SetReadCallback(std::bind(&EventLoop::HandleRead, this));
   wakeup_channel_->EnableReading();
 }
@@ -48,9 +48,9 @@ void EventLoop::Loop() {
   while (true) {
     active_channels_.clear();
     epoller_->Poll(active_channels_);
-    printf("EventLoop::Loop eventnum %ld\n", active_channels_.size());
+    // printf("EventLoop::Loop eventnum %ld\n", active_channels_.size());
     for (const auto& channel : active_channels_) {
-      printf("EventLoop::Loop connfd %d\n", channel->fd());
+      // printf("EventLoop::Loop connfd %d\n", channel->fd());
       channel->HandleEvent();
     }
     DoToDoList();

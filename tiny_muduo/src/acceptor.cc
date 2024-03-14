@@ -69,12 +69,12 @@ void Acceptor::NewConnection() {
   }
   assert(connfd > 0);
   if (SetSockoptKeepAlive(connfd) == -1) {
-    printf("Acceptor::NewConnection SetSockoptKeepAlive failed\n");
+    // printf("Acceptor::NewConnection SetSockoptKeepAlive failed\n");
     close(connfd);
     return;
   }
   if (SetSockoptTcpNoDelay(connfd) == -1) {
-    printf("Acceptor::NewConnection SetSockoptTcpNoDelay failed\n");
+    // printf("Acceptor::NewConnection SetSockoptTcpNoDelay failed\n");
     close(connfd);
     return;
   }

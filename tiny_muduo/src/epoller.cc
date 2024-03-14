@@ -17,17 +17,17 @@ Epoller::Epoller()
     : epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
       events_(kDefaultEvents),
       channels_() {
-  printf("[Cstr]: Epoller\n");
+  // printf("[Cstr]: Epoller\n");
 }
 
 Epoller::~Epoller() { ::close(epollfd_); }
 
 // 用于epoll_wait，等待事件
 void Epoller::Poll(Channels& channels) {
-  printf("Epoller Poll start\n");
+  // printf("Epoller Poll start\n");
   int eventnums = EpollWait();
   FillActiveChannels(eventnums, channels);
-  printf("Epoller Poll end\n");
+  // printf("Epoller Poll end\n");
 }
 
 // 将就绪的事件加入通道
@@ -93,7 +93,7 @@ void Epoller::UpdateChannel(int operation, Channel* channel) {
   event.data.ptr = static_cast<void*>(channel);
 
   if (epoll_ctl(epollfd_, operation, channel->fd(), &event) < 0) {
-    printf("Epoller::UpdateChannel epoll_ctl SYS_ERR\n");
+    // printf("Epoller::UpdateChannel epoll_ctl SYS_ERR\n");
   }
   return;
 }

@@ -6,7 +6,7 @@
 EchoServer::EchoServer(tiny_muduo::EventLoop* loop,
                        const tiny_muduo::Address& listen_addr)
     : loop_(loop), server_(loop, listen_addr) {
-  printf("[Cstr]: EchoServer\n");
+  // printf("[Cstr]: EchoServer\n");
   server_.SetConnectionCallback(
       std::bind(&EchoServer::ConnectionCallback, this, _1));
   server_.SetMessageCallback(std::bind(&EchoServer::MessageCallback, this, _1));

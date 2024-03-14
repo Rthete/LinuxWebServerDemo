@@ -26,7 +26,7 @@ static void* ThreadRun(void* arg) {
 
 Thread::Thread(const ThreadFunc& func)
     : pthread_id_(-1), func_(func), latch_(1) {
-  printf("[Cstr]: Thread\n");
+  // printf("[Cstr]: Thread\n");
 }
 
 Thread::~Thread() { ::pthread_detach(pthread_id_); }

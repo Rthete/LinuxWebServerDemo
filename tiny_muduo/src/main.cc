@@ -48,7 +48,7 @@ void HttpResponseCallback(const HttpRequest& request, HttpResponse& response) {
 
 int main(int argc, char* argv[]) {
   if (argc <= 1) {
-    printf("Usage: %s portname\n", argv[0]);
+    // printf("Usage: %s portname\n", argv[0]);
     return 0;
   }
 
