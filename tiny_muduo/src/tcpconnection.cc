@@ -19,13 +19,13 @@ TcpConnection::TcpConnection(EventLoop* loop, int connfd)
       state_(kDisconnected),
       channel_(new Channel(loop_, fd_)),
       shutdown_state_(false) {
-  // printf("[Cstr]: TcpConnection\n");
+  // LOG_INFO("[Cstr]: TcpConnection");
   channel_->SetReadCallback(std::bind(&TcpConnection::HandleMessage, this));
   channel_->SetWriteCallback(std::bind(&TcpConnection::HandleWrite, this));
 }
 
 TcpConnection::~TcpConnection() {
-  // // printf("TcpConnection::~TcpConnection destructor\n");
+  // LOG_INFO("TcpConnection::~TcpConnection destructor");
   ::close(fd_);
 }
 
@@ -51,7 +51,7 @@ void TcpConnection::HandleMessage() {
   } else if (read_size == 0) {
     HandleClose();
   } else {
-    // printf("TcpConnection::HandleMessage Read SYS_Err\n");
+    LOG_ERROR("TcpConnection::HandleMessage Read SYS_Err");
   }
 }
 
@@ -64,7 +64,7 @@ void TcpConnection::HandleWrite() {
     if (send_size < 0) {
       assert(send_size > 0);
       if (errno != EWOULDBLOCK) {
-        // printf("TcpConnection::HandleWrite Write SYS_ERR\n");
+        LOG_ERROR("TcpConnection::HandleWrite Write SYS_ERR");
       }
       return;
     }
@@ -78,6 +78,8 @@ void TcpConnection::HandleWrite() {
   }
 }
 
+// httpserver会调用Send来发送数据
+// Send函数中将channel设为可写（即通过epoll_ctl更新epollfd关注的events类型）
 void TcpConnection::Send(const char* message, int len) {
   int remaining = len;
   int send_size = 0;
@@ -87,7 +89,7 @@ void TcpConnection::Send(const char* message, int len) {
       remaining -= send_size;
     } else {
       if (errno != EWOULDBLOCK) {
-        // printf("TcpConnection::Send Write SYS_ERR\n");
+        LOG_ERROR("TcpConnection::Send Write SYS_ERR");
       }
       return;
     }
@@ -107,7 +109,7 @@ void TcpConnection::Shutdown() {
   if (!channel_->IsWriting()) {
     int ret = ::shutdown(fd_, SHUT_WR);
     if (ret < 0) {
-      // printf("TcpConnection::Shutdown shutdown SYS_ERR\n");
+      LOG_ERROR("TcpConnection::Shutdown shutdown SYS_ERR");
     }
   }
 }

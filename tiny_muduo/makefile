@@ -10,7 +10,7 @@ OBJS = $(BUILDDIR)/main.o \
        $(BUILDDIR)/acceptor.o $(BUILDDIR)/channel.o $(BUILDDIR)/eventloop.o \
        $(BUILDDIR)/epoller.o $(BUILDDIR)/tcpconnection.o $(BUILDDIR)/thread.o \
 	   $(BUILDDIR)/eventloopthreadpool.o $(BUILDDIR)/eventloopthread.o \
-	   $(BUILDDIR)/buffer.o \
+	   $(BUILDDIR)/buffer.o $(BUILDDIR)/log.o \
 	   $(TFLAG)
 
 TFLAG = -lpthread
@@ -22,7 +22,7 @@ $(BUILDDIR)/web_server: $(OBJS)
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cc $(SRCDIR)/eventloop.h $(SRCDIR)/address.h \
 					$(SRCDIR)/httpserver.h $(SRCDIR)/httprequest.h $(SRCDIR)/httpresponse.h \
-					$(SRCDIR)/httpresponsefile.h
+					$(SRCDIR)/httpresponsefile.h $(SRCDIR)/log.h
 	$(CC) $(CFLAG) $< -o $@ $(BUILD)
 
 $(BUILDDIR)/httpserver.o: $(SRCDIR)/httpserver.cc $(SRCDIR)/httpserver.h $(SRCDIR)/buffer.h
@@ -68,6 +68,9 @@ $(BUILDDIR)/thread.o: $(SRCDIR)/thread.cc $(SRCDIR)/thread.h $(SRCDIR)/latch.h
 	$(CC) $(CFLAG) $< -o $@ $(BUILD)
 
 $(BUILDDIR)/buffer.o: $(SRCDIR)/buffer.cc $(SRCDIR)/buffer.h
+	$(CC) $(CFLAG) $< -o $@ $(BUILD)
+
+$(BUILDDIR)/log.o: $(SRCDIR)/log.cc $(SRCDIR)/log.h $(SRCDIR)/blockqueue.h
 	$(CC) $(CFLAG) $< -o $@ $(BUILD)
 
 debug: $(OBJS)

@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "log.h"
 #include "noncopyable.h"
 
 namespace tiny_muduo {

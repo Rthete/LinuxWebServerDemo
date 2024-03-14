@@ -15,7 +15,7 @@ EventLoopThread::EventLoopThread()
       thread_(std::bind(&EventLoopThread::StartFunc, this)),
       mutex_(),
       cond_(mutex_) {
-  // printf("[Cstr]: EventLoopThread\n");
+  LOG_INFO("[Cstr]: EventLoopThread");
 }
 
 EventLoopThread::~EventLoopThread() {}

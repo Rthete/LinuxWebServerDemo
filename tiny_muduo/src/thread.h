@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "latch.h"
+#include "log.h"
 #include "noncopyable.h"
 
 namespace tiny_muduo {

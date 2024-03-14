@@ -44,6 +44,11 @@ BlockDeque<T>::BlockDeque(size_t MaxCapacity) : capacity_(MaxCapacity) {
 }
 
 template <class T>
+BlockDeque<T>::~BlockDeque() {
+  close();
+};
+
+template <class T>
 void BlockDeque<T>::close() {
   {
     std::lock_guard<std::mutex> locker(mtx_);

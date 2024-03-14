@@ -9,6 +9,7 @@
 #include "httpresponse.h"
 #include "httpresponsefile.h"
 #include "httpserver.h"
+#include "log.h"
 
 using namespace tiny_muduo;
 
@@ -48,12 +49,22 @@ void HttpResponseCallback(const HttpRequest& request, HttpResponse& response) {
 
 int main(int argc, char* argv[]) {
   if (argc <= 1) {
-    // printf("Usage: %s portname\n", argv[0]);
+    printf("Usage: %s portname\n", argv[0]);
     return 0;
   }
 
+  const char* port = argv[1];
+
+  int logLevel = 1;
+  int logQueSize = 5000;
+  Log::Instance()->init(logLevel, "./log", ".log", logQueSize);
+
+  LOG_INFO("========== Server init ==========");
+  LOG_INFO("Port:%d", port);
+  LOG_INFO("LogSys level: %d", logLevel);
+
   EventLoop loop;
-  Address listen_address(argv[1]);
+  Address listen_address(port);
   HttpServer server(&loop, listen_address);
   server.SetHttpResponseCallback(HttpResponseCallback);
   server.Start();

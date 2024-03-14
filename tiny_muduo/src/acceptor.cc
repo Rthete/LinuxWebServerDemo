@@ -14,6 +14,7 @@
 
 #include "address.h"
 #include "channel.h"
+#include "log.h"
 
 using namespace tiny_muduo;
 
@@ -69,12 +70,12 @@ void Acceptor::NewConnection() {
   }
   assert(connfd > 0);
   if (SetSockoptKeepAlive(connfd) == -1) {
-    // printf("Acceptor::NewConnection SetSockoptKeepAlive failed\n");
+    LOG_ERROR("Acceptor::NewConnection SetSockoptKeepAlive failed");
     close(connfd);
     return;
   }
   if (SetSockoptTcpNoDelay(connfd) == -1) {
-    // printf("Acceptor::NewConnection SetSockoptTcpNoDelay failed\n");
+    LOG_ERROR("Acceptor::NewConnection SetSockoptTcpNoDelay failed");
     close(connfd);
     return;
   }
