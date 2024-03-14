@@ -28,7 +28,7 @@ class Channel : public NoncopyAble {
   }
   // 设置写事件回调函数(在这个库中并没有使用)
   void SetWriteCallback(WriteCallback&& callback) {
-    read_callback_ = std::move(callback);
+    write_callback_ = std::move(callback);
   }
   void SetWriteCallback(const WriteCallback& callback) {
     write_callback_ = callback;
